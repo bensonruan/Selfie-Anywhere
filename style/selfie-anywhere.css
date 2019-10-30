@@ -1,0 +1,338 @@
+#selfie-anywhere-app {
+    background-image: url(../images/greatwall.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: black;
+    width: 100vw;
+    height: 100vh;
+    background-attachment: fixed;
+}
+
+.webcam-container {
+    height: 100vh;
+    width: 100vw;
+    background-image: url(../images/greatwall.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: black;
+    background-attachment: fixed;
+}
+
+.form-control.webcam-start{
+    margin-top:20%; 
+    left:30%;
+    position: absolute;
+    background: black;
+    opacity: 0.8;
+    padding: 10px 20px;
+    border: none;
+    color: white;
+    text-shadow: 1px 1px #000;
+    font-size: 1.2rem;
+    width: auto;
+    height: 55px;
+    z-index: 9999;
+}
+
+.form-control.webcam-on {
+    position: fixed;
+    left: 8vw;
+    top: 0;
+    transition: all 700ms;
+  }
+.form-control.webcam-off {
+    left: 30%;
+    transition: all 700ms;
+  }
+  @media screen and (max-width: 576px) {
+    #selfie-anywhere-app {
+      height: 100vh;
+    }
+    .form-control.webcam-start{
+        left:10%; 
+        width: auto;
+        margin-top:40%;
+    }
+    .form-control.webcam-on {
+        position: fixed;
+        margin-top: 0;
+        top: 20vw;
+        left: 0;
+        transition: all 700ms;
+      }
+    .form-control.webcam-off {
+       left: 10%;
+       margin-top:40%;
+       transition: all 700ms;
+      }
+  }
+  
+
+  .form-switch {
+    display: inline-block;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .form-switch i {
+    position: relative;
+    display: inline-block;
+    margin-right: .5rem;
+    width: 60px;
+    height: 30px;
+    background-color: #e6e6e6;
+    border-radius: 25px;
+    vertical-align: text-bottom;
+    transition: all 0.3s linear;
+  }
+  
+  .form-switch i::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 56px;
+    height: 25px;
+    background-color: #fff;
+    border-radius: 15px;
+    transform: translate3d(2px, 2px, 0) scale3d(1, 1, 1);
+    transition: all 0.25s linear;
+  }
+  
+  .form-switch i::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 26px;
+    height: 26px;
+    background-color: #fff;
+    border: 1px solid grey;
+    border-radius: 15px;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+    transform: translate3d(2px, 2px, 0);
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .form-switch:active i::after {
+    width: 60px;
+    transform: translate3d(2px, 2px, 0);
+  }
+  
+  .form-switch:active input:checked + i::after { transform: translate3d(16px, 2px, 0); }
+  
+  .form-switch input { display: none; }
+  
+  .form-switch input:checked + i { background-color: #4BD763; }
+  
+  .form-switch input:checked + i::before { transform: translate3d(18px, 2px, 0) scale3d(0, 0, 0); }
+  
+  .form-switch input:checked + i::after { transform: translate3d(30px, 2px, 0); }
+
+  .form-switch input:disabled + i { background-color: #eeeeee; cursor: not-allowed; }
+
+  .form-switch input:disabled + i::after {
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
+  }
+
+  .selfie-container {
+      height: 100%;
+  }
+  .selfie-container img{
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+  }
+
+  .app-panel{
+    height: 100vh;
+    width: 100vw;
+    text-align: center;
+  }
+
+  #canvasPerson{
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: 100;
+    transform: rotateY(180deg);
+    pointer-events: none;
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
+  }
+  
+  #webcam{
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100;
+    transform: translateX(-50%) translateY(-50%);
+    pointer-events: none;
+  }
+
+  .md-modal {
+    margin: auto;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2000;
+      visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      -moz-backface-visibility: hidden;
+      backface-visibility: hidden;
+  }
+  
+  .md-show {
+      visibility: visible;
+  }
+  
+  .md-overlay {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      visibility: hidden;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      opacity: 0;
+      background: rgba(#e4f0e3, 0.8);
+      -webkit-transition: all 0.3s;
+      -moz-transition: all 0.3s;
+      transition: all 0.3s;
+  }
+  
+  .md-show ~ .md-overlay {
+      opacity: 1;
+      visibility: visible;
+  }
+  
+  .md-effect-12 .md-content {
+      -webkit-transform: scale(0.8);
+      -moz-transform: scale(0.8);
+      -ms-transform: scale(0.8);
+      transform: scale(0.8);
+      opacity: 0;
+      -webkit-transition: all 0.3s;
+      -moz-transition: all 0.3s;
+      transition: all 0.3s;
+  }
+  
+  .md-show.md-effect-12 ~ .md-overlay {
+      background-color: #e4f0e3;
+  } 
+  
+  .md-effect-12 .md-content h3,
+  .md-effect-12 .md-content {
+      background: transparent;
+  }
+  
+  .md-show.md-effect-12 .md-content {
+      -webkit-transform: scale(1);
+      -moz-transform: scale(1);
+      -ms-transform: scale(1);
+      transform: scale(1);
+      opacity: 1;
+  }
+
+  .spinner-border {
+    position: relative;
+    top: 35%;
+    width: 200px;
+    height: 200px;
+    color: white;
+    z-index:300000;
+    filter: alpha(opacity=80);
+    -moz-opacity: 0.8;
+    opacity: 0.8;   
+  }
+
+  #arrowLeft{
+      position: absolute;
+      left: 20px;
+      top: 40%;
+      z-index:999999;
+      opacity: 0.7;
+      cursor: pointer;
+  }
+
+  #arrowRight{
+    position: absolute;
+    right: 20px;
+    top: 40%;
+    z-index:999999;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.cameraControls {
+    position: absolute;
+    bottom: 100px;
+    width: 100%;
+    z-index: 9999;
+    background: transparent;
+    opacity: 0.7;
+    padding: 10px;
+}
+
+
+.material-icons{
+    width: 100px;
+    font-size: 50px !important;
+    color: white;
+    width: 80px;
+    height: 80px;
+    background-color: black;
+    border-radius: 50%;
+    padding-top: 15px;
+    margin: 0 30px;
+}
+
+.flash{ 
+    position:fixed; 
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color:#fff;
+    z-index: 99999999;
+ }
+
+ #errorMsg {
+     position: absolute;
+     top: 5%;
+     padding: 20px;
+     z-index: 999999;
+ }
+
+ @media screen and (max-width: 768px) {
+    #errorMsg {
+        position: absolute;
+        top: 35%;
+        padding: 20px;
+        z-index: 999999;
+    }
+ }
+
+ .weblink {
+     position: absolute;
+     top: 10px;
+     left: 10px;
+     color: black;
+     z-index:  999999;
+ }
+ .weblink a{
+    color: black;
+    text-decoration: underline;
+ }
