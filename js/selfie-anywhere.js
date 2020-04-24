@@ -1,106 +1,68 @@
-const camera = document.getElementById('webcam');
+const webcamElement = document.getElementById('webcam');
+const webcam = new Webcam(webcamElement, 'user');
 const canvasPerson = document.getElementById("canvasPerson");
 const multiplier = 0.75;
 const outputStride = 16;
 const segmentationThreshold = 0.5;
-const backgrounds = ["greatwall", "eiffel-tower", "louvre", "monchu", "beach","desert", "moon"];
-const backgroundImagesPath = 'images/';
+const backgrounds = ["greatwall", "pyramid", "Colosseum", "monchu", "ayers-rock","taj", "easter-island", "moon"];
+const backgroundImagesPath =  'images/';
 const snapSound = new Audio('audio/snap.wav');
 
-let contextPerson = canvasPerson.getContext('2d');
-let currentStream;
-let deviceIds = [];
-let selectedDevice;
+const contextPerson = canvasPerson.getContext("2d");
 let net;
 let cameraFrame;
 let currentBGIndex = 0;
 
-$(document).ready(function() {    
-    $('.flash').hide();  
-});
-    
 $("#webcam-switch").change(function () {
     if(this.checked){
         $('.md-modal').addClass('md-show');
-        if (navigator.mediaDevices) {
-            navigator.mediaDevices.enumerateDevices().then(function(devices){
-              if(getDevices(devices)){
-                if(deviceIds.length>1){
-                  selectedDevice = deviceIds[1];
-                }else{
-                  selectedDevice = deviceIds[0];
-                }
-                startCamera();
-              }else{
-                alert('No camera detected');
-              }
+        webcam.start()
+            .then(result =>{
+               cameraStarted();
+               console.log("webcam started");
+               startDetectBody();
+            })
+            .catch(err => {
+                displayError();
             });
-          }else{
-            $("#errorMsg").removeClass("d-none");
-          }  
     }
     else {        
-        $("#webcam-control").removeClass("webcam-on");
-        $("#webcam-control").addClass("webcam-off");
-        $("#cameraFlip").addClass('d-none');
-        $(".webcam-container").addClass("d-none");
-        $("#webcam-caption").html("Click to Start Camera");
-        $([document.documentElement, document.body]).animate({
-            scrollTop: ($("#selfie-anywhere-app").offset().top - 80)
-        }, 1000);
-        $('.md-modal').removeClass('md-show');
-        stopMediaTracks(currentStream);
+        cameraStopped();
+        webcam.stop();
         cancelAnimationFrame(cameraFrame);
-
+        console.log("webcam stopped");
     }        
 });
 
-function getDevices(mediaDevices) {
-    deviceIds = [];
-    let count = 0;
-    mediaDevices.forEach(mediaDevice => {
-      if (mediaDevice.kind === 'videoinput') {
-        deviceIds.push(mediaDevice.deviceId);
-        count = count + 1;
-      }
-    });
-    return (count>0);
-}
-  
-function startCamera(){
-    if (typeof currentStream !== 'undefined') {
-      stopMediaTracks(currentStream);
+function displayError(err = ''){
+    if(err!=''){
+        $("#errorMsg").html(err);
     }
-    const videoConstraints = {};
-    if (selectedDevice === '') {
-      videoConstraints.facingMode = 'user';
-    } else {
-      videoConstraints.deviceId = { exact: selectedDevice};
-    }
-    const constraints = {
-      video: videoConstraints,
-      audio: false
-    };
-    navigator.mediaDevices
-      .getUserMedia(constraints)
-      .then(stream => {
-        currentStream = stream;
-        camera.srcObject = stream;
-        camera.play();
-        $("#errorMsg").addClass("d-none");
-        startDetectBody();
-        return navigator.mediaDevices.enumerateDevices();
-      })
-      .then(getDevices)
-      .catch(error => {
-        $("#errorMsg").removeClass("d-none");
-      });
+    $("#errorMsg").removeClass("d-none");
 }
 
-function stopMediaTracks(stream) {
-    stream.getTracks().forEach(track => {
-      track.stop();
-    });
+function cameraStarted(){
+    $("#errorMsg").addClass("d-none");
+    $('.flash').hide();
+    $("#webcam-caption").html("on");
+    $("#webcam-control").removeClass("webcam-off");
+    $("#webcam-control").addClass("webcam-on");
+    $("#canvasPerson").addClass("d-none");
+    $(".webcam-container").removeClass("d-none");
+    $(".spinner-border").removeClass('d-none');
+    $("#wpfront-scroll-top-container").addClass("d-none");
+    window.scrollTo(0, 0); 
+    $('body').css('overflow-y','hidden');
+}
+
+function cameraStopped(){
+    $("#errorMsg").addClass("d-none");
+    $("#wpfront-scroll-top-container").removeClass("d-none");
+    $("#webcam-control").removeClass("webcam-on");
+    $("#webcam-control").addClass("webcam-off");
+    $(".webcam-container").addClass("d-none");
+    $("#webcam-caption").html("Click to Start Camera");
+    $('.md-modal').removeClass('md-show');
 }
 
 window.requestAnimFrame = (function(){
@@ -119,29 +81,22 @@ window.cancelAnimationFrame = (function(){
 })();
 
 
- function startDetectBody() {
-    $("#webcam-caption").html("on");
-    $("#webcam-control").removeClass("webcam-off");
-    $("#webcam-control").addClass("webcam-on");
-    $("#canvasPerson").addClass("d-none");
-    $(".webcam-container").removeClass("d-none");
-    $(".spinner-border").removeClass('d-none');
+function startDetectBody() {
     bodyPix.load(multiplier)
     .catch(error => {
-        alert("Fail to load model");
+        console.log(error);
     })
     .then(objNet => {
         $(".spinner-border").addClass('d-none');
         net = objNet;
         cameraFrame = detectBody();
-        
     });
 }
 
 function detectBody(){
-    net.estimatePersonSegmentation(camera, outputStride, segmentationThreshold)
+    net.estimatePersonSegmentation(webcamElement, outputStride, segmentationThreshold)
     .catch(error => {
-        alert("Fail to segment person");
+        console.log(error);
     })
     .then(personSegmentation => {
         drawBody(personSegmentation);
@@ -152,8 +107,12 @@ function detectBody(){
 
 function drawBody(personSegmentation)
 {
-    contextPerson.drawImage(camera, 0, 0, camera.width, camera.height);
-    var imageData = contextPerson.getImageData(0,0, camera.width, camera.height);
+    var canvas = document.createElement('canvas');
+    canvas.width = webcamElement.width;
+    canvas.height = webcamElement.height;
+    var context = canvas.getContext('2d');
+    context.drawImage(webcamElement, 0, 0);
+    var imageData = context.getImageData(0,0, webcamElement.width, webcamElement.height);
     var pixel = imageData.data;
     for (var p = 0; p<pixel.length; p+=4)
     {
@@ -161,8 +120,22 @@ function drawBody(personSegmentation)
           pixel[p+3] = 0;
       }
     }
-    contextPerson.imageSmoothingEnabled = true;
-    contextPerson.putImageData(imageData,0,0);
+    context.imageSmoothingEnabled = true;
+    context.putImageData(imageData,0,0);
+
+    var imageObject=new Image();
+    imageObject.onload=function(){        
+        canvasPerson.width = webcamElement.scrollWidth;
+        canvasPerson.height = webcamElement.scrollHeight;
+        contextPerson.clearRect(0,0,canvasPerson.width,canvasPerson.height);
+        if(webcam.facingMode == 'user'){
+            contextPerson.translate(canvasPerson.width, 0);
+            contextPerson.scale(-1, 1);
+        }
+        contextPerson.imageSmoothingEnabled = true;
+        contextPerson.drawImage(imageObject, 0, 0, canvasPerson.width, canvasPerson.height);
+    }
+    imageObject.src=canvas.toDataURL();
 }
 
 $("#arrowLeft").click(function () {
@@ -172,7 +145,7 @@ $("#arrowLeft").click(function () {
         currentBGIndex = currentBGIndex -1;
     }
     $('#selfie-anywhere-app').css('background-image', 'url('+ backgroundImagesPath + backgrounds[currentBGIndex] +'.jpg)');
-    $('.webcam-container').css('background-image', 'url('+ backgroundImagesPath + backgrounds[currentBGIndex] +'.jpg)');
+    $('#background-container').css('background-image', 'url('+ backgroundImagesPath + backgrounds[currentBGIndex] +'.jpg)');
 });
 
 $("#arrowRight").click(function () {
@@ -182,49 +155,71 @@ $("#arrowRight").click(function () {
         currentBGIndex = currentBGIndex +1;
     }
     $('#selfie-anywhere-app').css('background-image', 'url('+ backgroundImagesPath + backgrounds[currentBGIndex] +'.jpg)');
-    $('.webcam-container').css('background-image', 'url('+ backgroundImagesPath + backgrounds[currentBGIndex] +'.jpg)');
+    $('#background-container').css('background-image', 'url('+ backgroundImagesPath + backgrounds[currentBGIndex] +'.jpg)');
 });
 
 $("#take-photo").click(function () {
-    var captureElement= document.body;
+    beforeTakePhoto();
+    var captureElement= document.getElementById('selfie-container');
     var appendElement= document.getElementById('webcam-container');
+    html2canvas(captureElement).then(function(canvas) {
+        canvas.id='captureCanvas';
+        canvas.style.position = "absolute";
+        canvas.style.top = "0px";
+        canvas.style.left = "0px";
+        appendElement.appendChild(canvas);
+        document.querySelector('#download-photo').href = canvas.toDataURL('image/png');
+        afterTakePhoto();
+    });
+});
+
+function beforeTakePhoto(){
+    snapSound.play();
+    $('.flash')
+        .show() 
+        .animate({opacity: 0.5}, 1000) 
+        .fadeOut(1000)
+        .css({'opacity': 1});
+    window.scrollTo(0, 0); 
     $('#webcam-control').addClass('d-none');
     $('#arrowLeft').addClass('d-none');
     $('#arrowRight').addClass('d-none');
     $('#cameraControls').addClass('d-none');
-    html2canvas(captureElement).then(function(canvas) {
-        snapSound.play();
-        $('.flash')
-            .show() 
-            .animate({opacity: 0.5}, 300) 
-            .fadeOut(300)
-            .css({'opacity': 1});
-        canvas.id='captureCanvas';
-        appendElement.appendChild(canvas);
-        document.querySelector('#download-photo').href = canvas.toDataURL('image/png');
-        camera.pause();
-        cancelAnimationFrame(cameraFrame);
-        $('#canvasPerson').addClass('d-none');
-        $('#take-photo').addClass('d-none');
-        $('#delete-photo').removeClass('d-none');
-        $('#download-photo').removeClass('d-none');
-        $('#cameraControls').removeClass('d-none');
-    });
-});
+}
 
-$("#delete-photo, #download-photo").click(function () {
-    $( "#captureCanvas" ).remove();
-    resumeCamera();
-});
+function afterTakePhoto(){
+    webcam.stop();
+    cancelAnimationFrame(cameraFrame);
+    $('#selfie-container').addClass('d-none');
+    $('#take-photo').addClass('d-none');
+    $('#exit-app').removeClass('d-none');
+    $('#download-photo').removeClass('d-none');
+    $('#resume-camera').removeClass('d-none');
+    $('#cameraControls').removeClass('d-none');
+}
 
-function resumeCamera(){
+function removeCapture(){
+    $('#captureCanvas').remove();
+    $('#selfie-container').removeClass('d-none');
     $('#webcam-control').removeClass('d-none');
     $('#arrowLeft').removeClass('d-none');
     $('#arrowRight').removeClass('d-none');
     $('#cameraControls').removeClass('d-none');
     $('#take-photo').removeClass('d-none');
-    $('#delete-photo').addClass('d-none');
+    $('#exit-app').addClass('d-none');
     $('#download-photo').addClass('d-none');
-    camera.play();
-    cameraFrame = detectBody();
+    $('#resume-camera').addClass('d-none');
 }
+
+$("#resume-camera").click(function () {
+    webcam.stream()
+        .then(facingMode =>{
+            removeCapture();
+            cameraFrame = detectBody();
+        });
+});
+
+$("#exit-app").click(function () {
+    removeCapture();
+    $("#webcam-switch").prop("checked", false).change();
+});

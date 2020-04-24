@@ -12,12 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@1.0.0"></script>
     <script src='js/html2canvas.min.js'></script>
+    <script type="text/javascript" src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
 </head>
 <body>
     <main id="selfie-anywhere-app">
-        <div class="weblink">
-            More on <a href="https://bensonruan.com" target="_blank">bensonruan.com</a>
-        </div>
         <div class="form-control webcam-start" id="webcam-control">
                 <label class="form-switch">
                 <input type="checkbox" id="webcam-switch">
@@ -39,19 +37,24 @@
         <div class="md-modal md-effect-12">
             <div id="app-panel" class="app-panel md-content">            
                 <div id="webcam-container" class="webcam-container d-none">
-                    <div class="spinner-border d-none" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
                     <video id="webcam" autoplay playsinline width="640" height="480"></video>
-                    <canvas id="canvasPerson" width="640" height="480"></canvas>
+                    <div id="selfie-container">
+                        <div id="background-container">
+                            <div class="spinner-border d-none" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <canvas id="canvasPerson" width="640" height="480"></canvas>
+                    </div>
                     <div class="flash"></div>
                 </div>
                 <img id="arrowLeft" src="images/arrow-left.png">
                 <img id="arrowRight" src="images/arrow-right.png">
                 <div id="cameraControls" class="cameraControls">
-                    <a href="#" id="delete-photo" title="Delete Photo" class="d-none"><i class="material-icons">delete</i></a>
+                    <a href="#" id="exit-app" title="Exit App" class="d-none"><i class="material-icons">exit_to_app</i></a>
                     <a href="#" id="take-photo" title="Take Photo"><i class="material-icons">camera_alt</i></a>
-                    <a href="#" id="download-photo" download="selfie.png" title="Save Photo" class="d-none"><i class="material-icons">file_download</i></a>  
+                    <a href="#" id="download-photo" download="selfie.png" target="_blank" title="Save Photo" class="d-none"><i class="material-icons">file_download</i></a>  
+                    <a href="#" id="resume-camera"  title="Resume Camera" class="d-none"><i class="material-icons">camera_front</i></a>
                 </div>
             </div>        
         </div>
