@@ -4,7 +4,7 @@
     background-repeat: no-repeat;
     background-size: cover;
     background-color: black;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
 }
 .webcam-container{
@@ -170,15 +170,21 @@
   #canvasPerson{
     background-color: transparent;
     position: absolute;
-    width: auto;
-    height: 100vh;
+    width: 100vw;
+    height: auto;
     z-index: 9999;
     margin: auto;
     top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
+    -moz-transform: scale(-1, 1);
+    -webkit-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+    filter: FlipH;
   }
 
   #webcam{
@@ -188,7 +194,7 @@
     height: 100vh;
     z-index: -100;
     pointer-events: none;
-    margin: auto;
+    margin-left: -9999px;
   }
 
   .md-modal {
