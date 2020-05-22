@@ -5,6 +5,8 @@
  ## Live Demo
 **[https://bensonruan.com/selfie-anywhere-person-segmentation-with-bodypix/](https://bensonruan.com/selfie-anywhere-person-segmentation-with-bodypix/)**
 
+![body-pix-background-change](https://bensonruan.com/wp-content/uploads/2020/05/body-pix-demo.png)
+
 ## Installing
 Clone this repository to your local computer
 ``` bash
