@@ -28,5 +28,8 @@ Please note that on iOS Safari, cameras can only be accessed via the https proto
 
 ## Regerence
 * [jquery](https://code.jquery.com/jquery-3.3.1.min.js) - JQuery
+
+## Support me 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W6METMY)
 * [tfjs-models/body-pix](https://github.com/tensorflow/tfjs-models/tree/master/body-pix) - Person and body part segmentation in the browser using TensorFlow.js
 * [html2canvas](https://html2canvas.hertzen.com) - Javascript library allows you to take screenshots of webpages or parts of it, directly on the users browser
